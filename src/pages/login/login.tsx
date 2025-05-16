@@ -1,4 +1,3 @@
-import React from "react";
 import { Button } from "@mui/material";
 import { signInWithPopup } from "firebase/auth";
 import { auth } from "../../firebase/firbase";
