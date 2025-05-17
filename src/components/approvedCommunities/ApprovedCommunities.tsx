@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import { useCommunity } from "../../hooks/useCommunity";
 import { QueryDocumentSnapshot, DocumentData } from "firebase/firestore";
+import { Link } from "react-router-dom";
 
 const ApprovedCommunitiesWidget = () => {
   const { getApprovedCommunities } = useCommunity();
@@ -58,7 +59,18 @@ const ApprovedCommunitiesWidget = () => {
       <List dense>
         {communities.map((c) => (
           <React.Fragment key={c.id}>
-            <ListItem disableGutters>
+            <ListItem
+              disableGutters
+              component={Link}
+              to={`/community/${c.id}`}
+              sx={{
+                textDecoration: "none",
+                color: "inherit",
+                "&:hover": {
+                  backgroundColor: "#f5f5f5",
+                },
+              }}
+            >
               <ListItemAvatar>
                 <Avatar
                   variant="rounded"
@@ -89,3 +101,4 @@ const ApprovedCommunitiesWidget = () => {
 };
 
 export default ApprovedCommunitiesWidget;
+    

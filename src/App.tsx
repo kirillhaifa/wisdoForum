@@ -7,6 +7,7 @@ import Home from "./pages/home/home";
 import MyCommunities from "./pages/myCommunities/myCommunities";
 import Profile from "./pages/profile/profile";
 import AdminPanel from "./pages/adminPanel/AdminPanel";
+import CommunityPage from "./pages/community/CommunityPage";
 
 const App = () => {
   return (
@@ -30,6 +31,8 @@ const App = () => {
           <Route path="/profile" element={<Profile />} />
           <Route path="/my-communities" element={<MyCommunities />} />
           <Route path="/admin-panel" element={<AdminPanel />} />
+<Route path="/community/:id" element={<CommunityPage />} />
+
         </Routes>
       </Box>
     </>
