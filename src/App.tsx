@@ -6,6 +6,7 @@ import { Routes, Route } from "react-router-dom";
 import Home from "./pages/home/home";
 import MyCommunities from "./pages/myCommunities/myCommunities";
 import Profile from "./pages/profile/profile";
+import AdminPanel from "./pages/adminPanel/AdminPanel";
 
 const App = () => {
   return (
@@ -15,8 +16,7 @@ const App = () => {
       {/* spacer под фиксированный AppBar */}
       <Toolbar />
       {/* Navbar под хедером */}
-      <Box
-      >
+      <Box>
         <Navbar />
       </Box>
 
@@ -29,6 +29,7 @@ const App = () => {
           <Route path="/" element={<Home />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/my-communities" element={<MyCommunities />} />
+          <Route path="/admin-panel" element={<AdminPanel />} />
         </Routes>
       </Box>
     </>
