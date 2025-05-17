@@ -53,7 +53,7 @@ const ApprovedCommunitiesWidget = () => {
       }}
     >
       <Typography variant="h6" gutterBottom>
-        Approved Communities
+        Communities
       </Typography>
 
       <List dense>

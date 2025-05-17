@@ -31,8 +31,7 @@ const App = () => {
           <Route path="/profile" element={<Profile />} />
           <Route path="/my-communities" element={<MyCommunities />} />
           <Route path="/admin-panel" element={<AdminPanel />} />
-<Route path="/community/:id" element={<CommunityPage />} />
-
+          <Route path="/community/:id" element={<CommunityPage />} />
         </Routes>
       </Box>
     </>
