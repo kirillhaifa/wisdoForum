@@ -43,8 +43,8 @@ const CreatePostForm = ({ communityId }: Props) => {
       sx={{
         maxWidth: 600,
         mx: "auto",
-        mt: 4,
-        p: 2,
+        mt: 2,
+        p: 1,
         border: "1px solid #ddd",
         borderRadius: 2,
       }}
@@ -56,7 +56,7 @@ const CreatePostForm = ({ communityId }: Props) => {
       <TextField
         label="Title"
         fullWidth
-        margin="normal"
+        margin="dense"
         value={title}
         onChange={(e) => setTitle(e.target.value.slice(0, MAX_TITLE))}
         helperText={`${MAX_TITLE - title.length} characters left`}
@@ -66,8 +66,8 @@ const CreatePostForm = ({ communityId }: Props) => {
         label="Summary"
         fullWidth
         multiline
-        rows={3}
-        margin="normal"
+        rows={1}
+        margin="dense"
         value={summary}
         onChange={(e) => setSummary(e.target.value)}
         helperText={`${summaryWordsLeft} words left`}
@@ -78,8 +78,8 @@ const CreatePostForm = ({ communityId }: Props) => {
         label="Body"
         fullWidth
         multiline
-        rows={6}
-        margin="normal"
+        rows={3}
+        margin="dense"
         value={body}
         onChange={(e) => setBody(e.target.value)}
       />

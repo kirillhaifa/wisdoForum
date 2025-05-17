@@ -1,18 +1,31 @@
 import { db } from "../firebase/firbase";
 import {
   addDoc,
-  collection,
   deleteDoc,
   doc,
   getDoc,
   updateDoc,
   serverTimestamp,
+  collection,
+  query,
+  where,
+  orderBy,
+  limit,
+  getDocs,
+  startAfter,
+  QueryDocumentSnapshot,
+  DocumentData,
 } from "firebase/firestore";
 import { useRecoilValue } from "recoil";
 import { userAtom } from "../store/userAtom";
+import { Post } from "../types/post";
+
+// внутри usePost
+const PAGE_SIZE = 5;
 
 export const usePost = () => {
   const user = useRecoilValue(userAtom);
+  console.log(user);
 
   const ensureAuth = () => {
     if (!user) throw new Error("User not authenticated");
@@ -79,10 +92,56 @@ export const usePost = () => {
     await deleteDoc(postRef);
   };
 
+  const getPostsByCommunityId = async (
+    communityId: string,
+    lastDoc: QueryDocumentSnapshot<DocumentData> | null = null
+  ) => {
+    const isAdminOrMod = user?.role === "admin" || user?.role === "moderator";
+
+    // Базовые условия выборки
+    const constraints: any[] = [
+      where("communityId", "==", communityId),
+      orderBy("createdAt", "desc"),
+    ];
+
+    // Если это не админ и не модератор, фильтруем только approved === true
+    if (!isAdminOrMod) {
+      constraints.unshift(where("approved", "==", true));
+    }
+
+    // Пагинация: если есть lastDoc — добавляем startAfter
+    if (lastDoc) {
+      constraints.push(startAfter(lastDoc));
+    }
+
+    // Добавляем лимит в конце
+    constraints.push(limit(PAGE_SIZE));
+
+    // Собираем полный запрос
+    const q = query(collection(db, "posts"), ...constraints);
+
+    // Выполняем запрос
+    const snapshot = await getDocs(q);
+
+    // Парсим документы
+    const posts: Post[] = snapshot.docs.map(
+      (doc) => ({ id: doc.id, ...doc.data() } as Post)
+    );
+
+    // Устанавливаем курсор
+    const nextCursor =
+      snapshot.docs.length === PAGE_SIZE
+        ? snapshot.docs[snapshot.docs.length - 1]
+        : null;
+
+    return { posts, nextCursor };
+  };
+
   return {
     createPost,
     approvePost,
     rejectPost,
     deletePost,
+    getPostsByCommunityId,
   };
 };

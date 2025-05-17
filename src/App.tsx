@@ -13,18 +13,8 @@ const App = () => {
   return (
     <>
       <Header />
-
-      {/* spacer под фиксированный AppBar */}
       <Toolbar />
-      {/* Navbar под хедером */}
-      <Box>
-        <Navbar />
-      </Box>
-
-      {/* spacer под navbar */}
-      <Toolbar />
-
-      {/* Основной контент */}
+      <Navbar />
       <Box sx={{ px: 2 }}>
         <Routes>
           <Route path="/" element={<Home />} />

@@ -1,5 +1,5 @@
 import React from "react";
-import { Stack, Typography } from "@mui/material";
+import { Stack, Typography, Box } from "@mui/material";
 import { Link, useLocation } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import { userAtom } from "../store/userAtom";
@@ -24,28 +24,41 @@ const Navbar = () => {
   });
 
   return (
-    <Stack
-      direction="row"
-      spacing={20}
-      justifyContent="center"
-      alignItems="center"
-      sx={{ paddingTop: "0px !important" }}
-    >
-      <Typography component={Link} to="/" sx={linkStyle("/")}>
-        Home
-      </Typography>
-      <Typography component={Link} to="/my-communities" sx={linkStyle("/my-communities")}>
-        My Communities
-      </Typography>
-      <Typography component={Link} to="/profile" sx={linkStyle("/profile")}>
-        Profile
-      </Typography>
-      {user?.role === "admin" && (
-        <Typography component={Link} to="/admin-panel" sx={linkStyle("/admin")}>
-          Admin
+    <Box display="flex" justifyContent="center">
+      <Stack
+        direction="row"
+        spacing={20}
+        justifyContent="center"
+        alignItems="center"
+        sx={{
+          borderBottom: "1px solid black",
+          pb: 1,
+        }}
+      >
+        <Typography component={Link} to="/" sx={linkStyle("/")}>
+          Home
         </Typography>
-      )}
-    </Stack>
+        <Typography
+          component={Link}
+          to="/my-communities"
+          sx={linkStyle("/my-communities")}
+        >
+          My Communities
+        </Typography>
+        <Typography component={Link} to="/profile" sx={linkStyle("/profile")}>
+          Profile
+        </Typography>
+        {user?.role === "admin" && (
+          <Typography
+            component={Link}
+            to="/admin-panel"
+            sx={linkStyle("/admin")}
+          >
+            Admin
+          </Typography>
+        )}
+      </Stack>
+    </Box>
   );
 };
 

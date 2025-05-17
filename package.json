@@ -10,6 +10,7 @@
     "@emotion/styled": "^11.11.0",
     "@mui/material": "^5.15.8",
     "@tanstack/react-query": "^5.76.1",
+    "date-fns": "^4.1.0",
     "firebase": "^10.14.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -23,13 +24,13 @@
     "@types/react-dom": "^18.2.15",
     "css-loader": "^6.10.0",
     "dotenv-webpack": "^8.1.0",
+    "nx": "21.0.3",
     "style-loader": "^3.3.4",
     "ts-loader": "^9.5.2",
     "typescript": "^5.8.3",
     "webpack": "^5.91.0",
     "webpack-cli": "^5.1.4",
-    "webpack-dev-server": "^4.15.1",
-    "nx": "21.0.3"
+    "webpack-dev-server": "^4.15.1"
   },
   "nx": {}
 }
