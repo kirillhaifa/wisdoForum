@@ -2,6 +2,7 @@ import { db } from "../firebase/firbase";
 import {
   addDoc,
   arrayUnion,
+  arrayRemove,
   collection,
   doc,
   getDoc,
@@ -14,8 +15,9 @@ import {
   limit,
   QueryDocumentSnapshot,
   DocumentData,
+  increment,
 } from "firebase/firestore";
-import { useRecoilValue } from "recoil";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import { userAtom } from "../store/userAtom";
 import { useNavigate } from "react-router-dom";
 
@@ -23,7 +25,10 @@ const PAGE_SIZE = 10;
 
 export const useCommunity = () => {
   const user = useRecoilValue(userAtom);
+  const setUser = useSetRecoilState(userAtom);
+
   const navigate = useNavigate();
+
   const ensureAuth = () => {
     if (!user) {
       navigate("/login");
@@ -41,7 +46,6 @@ export const useCommunity = () => {
       approved: false,
     });
 
-    // Добавить сообщество в профиль пользователя
     await updateDoc(doc(db, "users", user!.uid), {
       communities: arrayUnion(ref.id),
     });
@@ -49,7 +53,6 @@ export const useCommunity = () => {
     return ref.id;
   };
 
-  // ✅ Апрув сообщества (только админ)
   const approveCommunity = async (communityId: string) => {
     if (!user || user.role !== "admin") {
       throw new Error("Only admins can approve communities");
@@ -60,7 +63,6 @@ export const useCommunity = () => {
     });
   };
 
-  // ✅ Получить список approved сообществ
   const getApprovedCommunities = async (
     lastDoc: QueryDocumentSnapshot<DocumentData> | null = null
   ) => {
@@ -89,11 +91,58 @@ export const useCommunity = () => {
     return { communities, nextCursor };
   };
 
-  // ✅ Получить конкретное сообщество
   const getCommunityById = async (id: string) => {
     const ref = doc(db, "communities", id);
     const snap = await getDoc(ref);
     return snap.exists() ? { id: snap.id, ...snap.data() } : null;
+  };
+
+  // ✅ Вступить в сообщество
+  const joinCommunity = async (communityId: string) => {
+    ensureAuth();
+
+    const userRef = doc(db, "users", user!.uid);
+    const communityRef = doc(db, "communities", communityId);
+
+    await Promise.all([
+      updateDoc(userRef, {
+        communities: arrayUnion(communityId),
+      }),
+      updateDoc(communityRef, {
+        membersCount: increment(1),
+      }),
+    ]);
+
+    // 🆕 Обновляем userAtom
+    setUser((prev) =>
+      prev ? { ...prev, communities: [...prev.communities, communityId] } : prev
+    );
+  };
+
+  // ✅ Покинуть сообщество
+  const leaveCommunity = async (communityId: string) => {
+    ensureAuth();
+
+    const userRef = doc(db, "users", user!.uid);
+    const communityRef = doc(db, "communities", communityId);
+
+    await Promise.all([
+      updateDoc(userRef, {
+        communities: arrayRemove(communityId),
+      }),
+      updateDoc(communityRef, {
+        membersCount: increment(-1),
+      }),
+    ]);
+
+    setUser((prev) =>
+      prev
+        ? {
+            ...prev,
+            communities: prev.communities.filter((id) => id !== communityId),
+          }
+        : prev
+    );
   };
 
   return {
@@ -101,5 +150,7 @@ export const useCommunity = () => {
     approveCommunity,
     getApprovedCommunities,
     getCommunityById,
+    joinCommunity,
+    leaveCommunity,
   };
 };

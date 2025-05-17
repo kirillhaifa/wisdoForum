@@ -7,6 +7,7 @@ export interface UserData {
   role: "admin" | "moderator" | null;
   country: string;
   uid: string;
+  communities: string[],
 }
 
 export const userAtom = atom<UserData | null>({
