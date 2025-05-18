@@ -82,26 +82,38 @@ const PostCard: React.FC<PostCardProps> = ({
           </Typography>
         </Box>
 
-        {!post.approved && isAdminOrMod && (
+        {(isAdminOrMod || user?.uid === post.authorId) && (
           <Box mt={2} display="flex" gap={2}>
-            <Button
-              variant="contained"
-              color="success"
-              size="small"
-              onClick={handleApprove}
-              disabled={post.approved}
-            >
-              Approve
-            </Button>
-            <Button
-              variant="outlined"
-              color="error"
-              size="small"
-              onClick={handleReject}
-              disabled={post.approved}
-            >
-              Reject
-            </Button>
+            {!post.approved && isAdminOrMod && (
+              <>
+                <Button
+                  variant="contained"
+                  color="success"
+                  size="small"
+                  onClick={handleApprove}
+                >
+                  Approve
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="warning"
+                  size="small"
+                  onClick={handleReject}
+                >
+                  Reject
+                </Button>
+              </>
+            )}
+            {post.approved && (
+              <Button
+                variant="outlined"
+                color="error"
+                size="small"
+                onClick={handleReject}
+              >
+                Delete
+              </Button>
+            )}
           </Box>
         )}
       </CardContent>
