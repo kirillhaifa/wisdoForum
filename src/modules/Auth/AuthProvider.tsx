@@ -14,7 +14,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (user) => {
-      console.log("Firebase auth state changed:", user?.uid);
 
       if (user) {
         const userRef = doc(db, "users", user.uid);
@@ -37,7 +36,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUid(user.uid);
 
         if (uid && userData) {
-          console.log("📦 Устанавливаем user в атом:", { ...userData, uid });
           setUser({ ...userData, uid });
         }
       } else {

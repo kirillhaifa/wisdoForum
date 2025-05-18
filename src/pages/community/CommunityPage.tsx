@@ -15,13 +15,14 @@ import CreatePostForm from "../../components/createPostForm/createPostForm";
 import { usePost } from "../../hooks/usePost";
 import { Post } from "../../types/post";
 import PostCard from "../../components/postCard/postCard";
+import ApprovedCommunitiesWidget from "../../components/approvedCommunities/ApprovedCommunities";
 
 const CommunityPage = () => {
   const { id } = useParams<{ id: string }>();
   const { getCommunityById, joinCommunity, leaveCommunity } = useCommunity();
   const user = useRecoilValue(userAtom);
 
-  const { getPostsByCommunityId } = usePost();
+  const { getPostsByCommunityId, subscribeToPostsByCommunityId } = usePost();
 
   const [posts, setPosts] = useState<Post[]>([]);
   const [postCursor, setPostCursor] = useState<any>(null);
@@ -92,9 +93,15 @@ const CommunityPage = () => {
   };
 
   useEffect(() => {
-    setPosts([]);
-    setPostCursor(null);
-    loadPosts();
+    if (!id) return;
+
+    const unsubscribe = subscribeToPostsByCommunityId(id, (newPosts) => {
+      setPosts(newPosts);
+      setPostCursor(null); // реалтайм-подписка не поддерживает пагинацию
+      setPostLoading(false);
+    });
+
+    return () => unsubscribe(); // очистка подписки
   }, [id, user]);
 
   if (loading || actionLoading) {
@@ -120,6 +127,7 @@ const CommunityPage = () => {
         sx={{
           px: 3,
           py: 2, // 🔽 Было 4, стало 2 — меньше высота
+          marginBottom: "20px",
           borderBottom: "1px solid #ddd",
           bgcolor: "#f9f9ff",
           display: "flex",
@@ -169,32 +177,44 @@ const CommunityPage = () => {
           </Button>
         )}
       </Box>
-
-      {posts.map((post) => (
-        <PostCard
-          key={post.id}
-          post={post}
-          authorName={post.authorId}
-          communityTitle={community.title}
-        />
-      ))}
-
-      {postLoading && (
-        <Box mt={2} display="flex" justifyContent="center">
-          <CircularProgress size={20} />
+      <Box sx={{ display: "flex", alignItems: "flex-start", gap: 3 }}>
+        {/* Левая колонка — виджет */}
+        <Box sx={{ width: 280, flexShrink: 0 }}>
+          <ApprovedCommunitiesWidget />
         </Box>
-      )}
 
-      {!postLoading && postCursor && (
-        <Box textAlign="center" mt={2}>
-          <Button onClick={loadPosts}>Load more</Button>
+        {/* Правая колонка — посты и форма */}
+        <Box sx={{ flex: 1 }}>
+          <Box sx={{ marginTop: "20px" }}>
+            {posts.map((post) => (
+              <PostCard
+                key={post.id}
+                post={post}
+                authorName={post.authorId}
+                communityTitle={community.title}
+              />
+            ))}
+          </Box>
+
+          {postLoading && (
+            <Box mt={2} display="flex" justifyContent="center">
+              <CircularProgress size={20} />
+            </Box>
+          )}
+
+          {!postLoading && postCursor && (
+            <Box textAlign="center" mt={2}>
+              <Button onClick={loadPosts}>Load more</Button>
+            </Box>
+          )}
+
+          {isMember && (
+            <Box mt={4}>
+              <CreatePostForm communityId={id!} />
+            </Box>
+          )}
         </Box>
-      )}
-
-      {/* Контент */}
-      <Container maxWidth="md">
-        {isMember && <CreatePostForm communityId={id!} />}
-      </Container>
+      </Box>
     </>
   );
 };

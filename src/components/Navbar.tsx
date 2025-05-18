@@ -24,7 +24,7 @@ const Navbar = () => {
   });
 
   return (
-    <Box display="flex" justifyContent="center">
+    <Box display="flex" justifyContent="center" sx={{marginBottom: '10px'}}>
       <Stack
         direction="row"
         spacing={20}

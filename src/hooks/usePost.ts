@@ -15,6 +15,7 @@ import {
   startAfter,
   QueryDocumentSnapshot,
   DocumentData,
+  onSnapshot
 } from "firebase/firestore";
 import { useRecoilValue } from "recoil";
 import { userAtom } from "../store/userAtom";
@@ -25,7 +26,6 @@ const PAGE_SIZE = 5;
 
 export const usePost = () => {
   const user = useRecoilValue(userAtom);
-  console.log(user);
 
   const ensureAuth = () => {
     if (!user) throw new Error("User not authenticated");
@@ -92,6 +92,33 @@ export const usePost = () => {
     await deleteDoc(postRef);
   };
 
+  const subscribeToPostsByCommunityId = (
+    communityId: string,
+    onUpdate: (posts: Post[]) => void
+  ) => {
+    const isAdminOrMod = user?.role === "admin" || user?.role === "moderator";
+
+    const constraints: any[] = [
+      where("communityId", "==", communityId),
+      orderBy("createdAt", "desc"),
+    ];
+
+    if (!isAdminOrMod) {
+      constraints.unshift(where("approved", "==", true));
+    }
+
+    const q = query(collection(db, "posts"), ...constraints);
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const posts: Post[] = snapshot.docs.map(
+        (doc) => ({ id: doc.id, ...doc.data() } as Post)
+      );
+      onUpdate(posts);
+    });
+
+    return unsubscribe; // вызвать для отписки
+  };
+
   const getPostsByCommunityId = async (
     communityId: string,
     lastDoc: QueryDocumentSnapshot<DocumentData> | null = null
@@ -143,5 +170,6 @@ export const usePost = () => {
     rejectPost,
     deletePost,
     getPostsByCommunityId,
+    subscribeToPostsByCommunityId
   };
 };
