@@ -1,6 +1,7 @@
 import { Box } from "@mui/material";
 import CreateCommunity from "../../components/сreateCommunity/CreateCommunity";
 import ApprovedCommunitiesWidget from "../../components/approvedCommunities/ApprovedCommunities";
+import HomeIntroSection from "../../components/homeIntroSection.tsx/HomeIntroSection";
 
 const Home = () => {
   return (
@@ -22,8 +23,16 @@ const Home = () => {
         <ApprovedCommunitiesWidget />
       </Box>
 
-      {/* Левая часть (форма создания) */}
-      <Box flex={1} minWidth={300}>
+      {/* Левая часть */}
+      <Box
+        flex={1}
+        minWidth={300}
+        sx={{ border: "1px solid #ddd", borderRadius: 2 }}
+      >
+        {/* Вставка блока-интро */}
+        <HomeIntroSection />
+
+        {/* Форма создания сообщества */}
         <CreateCommunity />
       </Box>
     </Box>

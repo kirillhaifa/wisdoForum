@@ -39,7 +39,7 @@ const PostCard: React.FC<PostCardProps> = ({
     await updateDoc(ref, { approved: true });
   };
 
-  const handleReject = async () => {
+  const handleDelete = async () => {
     const ref = doc(db, "posts", post.id);
     await deleteDoc(ref);
   };
@@ -56,11 +56,13 @@ const PostCard: React.FC<PostCardProps> = ({
           <Typography variant="h6" fontWeight={600}>
             {post.title}
           </Typography>
-          <Chip
-            label={post.approved ? "Approved" : "Pending"}
-            color={post.approved ? "success" : "warning"}
-            size="small"
-          />
+          {!post.approved && (
+            <Chip
+              label={"Pending"}
+              color={"warning"}
+              size="small"
+            />
+          )}
         </Box>
 
         <Typography variant="body2" color="text.secondary" mb={1}>
@@ -98,7 +100,7 @@ const PostCard: React.FC<PostCardProps> = ({
                   variant="outlined"
                   color="warning"
                   size="small"
-                  onClick={handleReject}
+                  onClick={handleDelete}
                 >
                   Reject
                 </Button>
@@ -109,7 +111,7 @@ const PostCard: React.FC<PostCardProps> = ({
                 variant="outlined"
                 color="error"
                 size="small"
-                onClick={handleReject}
+                onClick={handleDelete}
               >
                 Delete
               </Button>

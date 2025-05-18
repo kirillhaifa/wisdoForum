@@ -16,6 +16,8 @@ import { usePost } from "../../hooks/usePost";
 import { Post } from "../../types/post";
 import PostCard from "../../components/postCard/postCard";
 import ApprovedCommunitiesWidget from "../../components/approvedCommunities/ApprovedCommunities";
+import CommunityHeader from "../../components/сommunityHeader/CommunityHeader";
+import SignInPrompt from "../../components/signInPrompt/SignInPrompt";
 
 const CommunityPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -121,70 +123,32 @@ const CommunityPage = () => {
   }
 
   return (
-    <>
-      {/* Заголовок на всю ширину */}
-      <Box
-        sx={{
-          px: 3,
-          py: 2, // 🔽 Было 4, стало 2 — меньше высота
-          marginBottom: "20px",
-          borderBottom: "1px solid #ddd",
-          bgcolor: "#f9f9ff",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center", // 🔄 Добавлено для выравнивания по вертикали
-          gap: 2,
-        }}
-      >
-        <Box display="flex" alignItems="center" gap={2}>
-          <Avatar
-            src={community.image}
-            alt={community.title}
-            sx={{ width: 48, height: 48 }} // 🔽 Было 60, стало 48
-          />
-          <Box>
-            <Typography variant="h6" sx={{ lineHeight: 1.2 }}>
-              {community.title}
-            </Typography>
-            <Typography
-              color="text.secondary"
-              variant="body2"
-              sx={{ lineHeight: 1.2 }}
-            >
-              Members: {community.membersCount ?? 0}
-            </Typography>
-          </Box>
-        </Box>
-
-        {isMember ? (
-          <Button
-            variant="outlined"
-            color="error"
-            onClick={handleLeave}
-            disabled={actionLoading}
-            size="small" // 🔽 Сделать кнопку меньше
-          >
-            Leave
-          </Button>
-        ) : (
-          <Button
-            variant="contained"
-            onClick={handleJoin}
-            disabled={actionLoading}
-            size="small" // 🔽 Сделать кнопку меньше
-          >
-            Join
-          </Button>
-        )}
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "space-between",
+        gap: 7,
+      }}
+    >
+      {/* Левая колонка — виджет */}
+      <Box sx={{ flexShrink: 0 }}>
+        <ApprovedCommunitiesWidget />
       </Box>
-      <Box sx={{ display: "flex", alignItems: "flex-start", gap: 3 }}>
-        {/* Левая колонка — виджет */}
-        <Box sx={{ width: 280, flexShrink: 0 }}>
-          <ApprovedCommunitiesWidget />
-        </Box>
 
-        {/* Правая колонка — посты и форма */}
-        <Box sx={{ flex: 1 }}>
+      {/* Правая колонка — посты и форма */}
+      <Box sx={{ width: "100%" }}>
+        {" "}
+        <Box sx={{ flex: 1, minWidth: 0 }}>
+          <CommunityHeader
+            title={community.title}
+            image={community.image}
+            membersCount={community.membersCount}
+            isMember={isMember}
+            onJoin={handleJoin}
+            onLeave={handleLeave}
+            actionLoading={actionLoading}
+          />
           <Box sx={{ marginTop: "20px" }}>
             {posts.map((post) => (
               <PostCard
@@ -208,14 +172,16 @@ const CommunityPage = () => {
             </Box>
           )}
 
-          {isMember && (
-            <Box mt={4}>
-              <CreatePostForm communityId={id!} />
-            </Box>
+          {!user ? (
+            <SignInPrompt />
+          ) : !isMember ? (
+            <SignInPrompt onJoin={handleJoin} joinDisabled={actionLoading} />
+          ) : (
+            <CreatePostForm communityId={id!} />
           )}
         </Box>
       </Box>
-    </>
+    </Box>
   );
 };
 
