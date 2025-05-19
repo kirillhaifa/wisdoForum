@@ -4,7 +4,7 @@ export interface UserData {
   name: string;
   email: string;
   image: string;
-  role: "admin" | "moderator" | null;
+  role: string
   country: string;
   uid: string;
   communities: string[],
