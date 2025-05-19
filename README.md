@@ -18,15 +18,13 @@ The project is a full-stack web application that allows users to join communitie
 - create .env file with variables shared by administrator
 - npm run start in the root of project
 
-  ## Improvement Tasks
+## Improvement Tasks
 
 - Make the design responsive
 - Implement photo upload and storage
 - Add theme switching (light/dark)
 - Add i18n support (translations)
 - Add animations and transitions
-
-
 
 ## Frontend
 
