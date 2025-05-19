@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -11,13 +11,12 @@ import { Post } from "../../types/post";
 import { format } from "date-fns";
 import { useRecoilValue } from "recoil";
 import { userAtom } from "../../store/userAtom";
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from "../../firebase/firbase";
-import { deleteDoc } from "firebase/firestore";
 
 type PostCardProps = {
   post: Post;
-  authorName?: string;
+  authorName?: string; // можно оставить на случай передачи извне
   communityTitle?: string;
 };
 
@@ -26,6 +25,9 @@ const PostCard: React.FC<PostCardProps> = ({
   authorName,
   communityTitle,
 }) => {
+  const [resolvedAuthorName, setResolvedAuthorName] = useState<string | null>(
+    authorName ?? null
+  );
   const formattedDate =
     post.createdAt && typeof post.createdAt.toDate === "function"
       ? format(post.createdAt.toDate(), "dd MMM yyyy HH:mm")
@@ -33,6 +35,19 @@ const PostCard: React.FC<PostCardProps> = ({
 
   const user = useRecoilValue(userAtom);
   const isAdminOrMod = user?.role === "admin" || user?.role === "moderator";
+
+  useEffect(() => {
+    const fetchAuthorName = async () => {
+      const ref = doc(db, "users", post.authorId);
+      const snap = await getDoc(ref);
+      if (snap.exists()) {
+        const data = snap.data();
+        setResolvedAuthorName(data.name ?? post.authorId);
+      }
+    };
+
+    fetchAuthorName();
+  }, [post.authorId, resolvedAuthorName]);
 
   const handleApprove = async () => {
     const ref = doc(db, "posts", post.id);
@@ -57,11 +72,7 @@ const PostCard: React.FC<PostCardProps> = ({
             {post.title}
           </Typography>
           {!post.approved && (
-            <Chip
-              label={"Pending"}
-              color={"warning"}
-              size="small"
-            />
+            <Chip label={"Pending"} color={"warning"} size="small" />
           )}
         </Box>
 
@@ -76,7 +87,7 @@ const PostCard: React.FC<PostCardProps> = ({
           mt={2}
         >
           <Typography variant="caption">
-            By <strong>{authorName ?? post.authorId}</strong> in{" "}
+            By <strong>{resolvedAuthorName}</strong> in{" "}
             <strong>{communityTitle ?? post.communityId}</strong>
           </Typography>
           <Typography variant="caption">

@@ -1,9 +1,13 @@
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import CreateCommunity from "../../components/сreateCommunity/CreateCommunity";
 import ApprovedCommunitiesWidget from "../../components/approvedCommunities/ApprovedCommunities";
 import HomeIntroSection from "../../components/homeIntroSection.tsx/HomeIntroSection";
+import { useRecoilValue } from "recoil";
+import { communitiesAtom } from "../../store/communitiesAtom";
+import RandomCommunitiesCloud from "../../components/randomCommunitiesCloud/RandomCommunitiesCloud";
 
 const Home = () => {
+  const communities = useRecoilValue(communitiesAtom);
   return (
     <Box
       display="flex"
@@ -29,8 +33,13 @@ const Home = () => {
         minWidth={300}
         sx={{ border: "1px solid #ddd", borderRadius: 2 }}
       >
+
         {/* Вставка блока-интро */}
         <HomeIntroSection />
+        <Typography variant="h6" gutterBottom sx={{textAlign: 'center', width: '100%', padding: '10px'}}>
+          Find your mindmates
+        </Typography>
+        <RandomCommunitiesCloud communities={communities} />
 
         {/* Форма создания сообщества */}
         <CreateCommunity />
