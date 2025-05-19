@@ -3,6 +3,7 @@ import { Stack, Typography, Box } from "@mui/material";
 import { Link, useLocation } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import { userAtom } from "../store/userAtom";
+import { Roles } from "../constants/roles";
 
 const Navbar = () => {
   const location = useLocation();
@@ -48,7 +49,7 @@ const Navbar = () => {
         <Typography component={Link} to="/profile" sx={linkStyle("/profile")}>
           Profile
         </Typography>
-        {user?.role === "admin" && (
+        {user?.role === Roles.ADMIN && (
           <Typography
             component={Link}
             to="/admin-panel"

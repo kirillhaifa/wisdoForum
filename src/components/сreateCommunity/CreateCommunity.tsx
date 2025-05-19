@@ -23,17 +23,16 @@ const CreateCommunity = () => {
     setError("");
 
     if (!title || !image) {
-      setError("Пожалуйста, заполни все поля");
+      setError("Please file all fields");
       return;
     }
 
     try {
       const id = await createCommunity(title, image);
-      console.log("Сообщество создано:", id);
       navigate("/my-communities");
     } catch (err) {
-      console.error("Ошибка при создании сообщества:", err);
-      setError("Не удалось создать сообщество");
+      console.error("Error while creating a community:", err);
+      setError("Failed to create community");
     }
   };
 

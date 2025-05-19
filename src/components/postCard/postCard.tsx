@@ -13,10 +13,11 @@ import { useRecoilValue } from "recoil";
 import { userAtom } from "../../store/userAtom";
 import { doc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from "../../firebase/firbase";
+import { Roles } from "../../constants/roles";
 
 type PostCardProps = {
   post: Post;
-  authorName?: string; // можно оставить на случай передачи извне
+  authorName?: string;
   communityTitle?: string;
 };
 
@@ -34,7 +35,7 @@ const PostCard: React.FC<PostCardProps> = ({
       : "Loading...";
 
   const user = useRecoilValue(userAtom);
-  const isAdminOrMod = user?.role === "admin" || user?.role === "moderator";
+  const isAdminOrMod = user?.role === Roles.ADMIN || user?.role === Roles.MODERATOR;
 
   useEffect(() => {
     const fetchAuthorName = async () => {

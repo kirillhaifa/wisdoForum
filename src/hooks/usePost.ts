@@ -20,8 +20,8 @@ import {
 import { useRecoilValue } from "recoil";
 import { userAtom } from "../store/userAtom";
 import { Post } from "../types/post";
+import { Roles } from "../constants/roles";
 
-// внутри usePost
 const PAGE_SIZE = 5;
 
 export const usePost = () => {
@@ -53,7 +53,7 @@ export const usePost = () => {
 
   const approvePost = async (postId: string) => {
     ensureAuth();
-    if (user!.role !== "admin" && user!.role !== "moderator") {
+    if (user!.role !== Roles.ADMIN && user!.role !== Roles.MODERATOR) {
       throw new Error("Only admins or moderators can approve posts");
     }
 
@@ -64,7 +64,7 @@ export const usePost = () => {
 
   const rejectPost = async (postId: string) => {
     ensureAuth();
-    if (user!.role !== "admin" && user!.role !== "moderator") {
+    if (user!.role !== Roles.ADMIN && user!.role !== Roles.MODERATOR) {
       throw new Error("Only admins or moderators can reject posts");
     }
 
@@ -83,7 +83,7 @@ export const usePost = () => {
 
     const postData = postSnap.data();
     const isOwner = postData.authorId === user!.uid;
-    const isAdminOrMod = user!.role === "admin" || user!.role === "moderator";
+    const isAdminOrMod = user!.role === Roles.ADMIN || user!.role === Roles.MODERATOR;
 
     if (!isOwner && !isAdminOrMod) {
       throw new Error("You are not allowed to delete this post");
@@ -96,7 +96,7 @@ export const usePost = () => {
     communityId: string,
     onUpdate: (posts: Post[]) => void
   ) => {
-    const isAdminOrMod = user?.role === "admin" || user?.role === "moderator";
+    const isAdminOrMod = user?.role === Roles.ADMIN || user?.role === Roles.MODERATOR;
 
     const constraints: any[] = [
       where("communityId", "==", communityId),
@@ -116,46 +116,38 @@ export const usePost = () => {
       onUpdate(posts);
     });
 
-    return unsubscribe; // вызвать для отписки
+    return unsubscribe; 
   };
 
   const getPostsByCommunityId = async (
     communityId: string,
     lastDoc: QueryDocumentSnapshot<DocumentData> | null = null
   ) => {
-    const isAdminOrMod = user?.role === "admin" || user?.role === "moderator";
+    const isAdminOrMod = user?.role === Roles.ADMIN || user?.role === Roles.MODERATOR;
 
-    // Базовые условия выборки
     const constraints: any[] = [
       where("communityId", "==", communityId),
       orderBy("createdAt", "desc"),
     ];
 
-    // Если это не админ и не модератор, фильтруем только approved === true
     if (!isAdminOrMod) {
       constraints.unshift(where("approved", "==", true));
     }
 
-    // Пагинация: если есть lastDoc — добавляем startAfter
     if (lastDoc) {
       constraints.push(startAfter(lastDoc));
     }
 
-    // Добавляем лимит в конце
     constraints.push(limit(PAGE_SIZE));
 
-    // Собираем полный запрос
     const q = query(collection(db, "posts"), ...constraints);
 
-    // Выполняем запрос
     const snapshot = await getDocs(q);
 
-    // Парсим документы
     const posts: Post[] = snapshot.docs.map(
       (doc) => ({ id: doc.id, ...doc.data() } as Post)
     );
 
-    // Устанавливаем курсор
     const nextCursor =
       snapshot.docs.length === PAGE_SIZE
         ? snapshot.docs[snapshot.docs.length - 1]

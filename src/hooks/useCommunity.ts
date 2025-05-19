@@ -22,6 +22,7 @@ import { userAtom } from "../store/userAtom";
 import { useNavigate } from "react-router-dom";
 import { communitiesAtom } from "../store/communitiesAtom";
 import { Community } from "../store/approvedCommunitiesAtom";
+import { Roles } from "../constants/roles";
 
 const PAGE_SIZE = 10;
 
@@ -58,7 +59,7 @@ export const useCommunity = () => {
   };
 
   const approveCommunity = async (communityId: string) => {
-    if (!user || user.role !== "admin") {
+    if (!user || user.role !== Roles.ADMIN) {
       throw new Error("Only admins can approve communities");
     }
 
@@ -70,7 +71,6 @@ export const useCommunity = () => {
   const getApprovedCommunities = async (
     lastDoc: QueryDocumentSnapshot<DocumentData> | null = null
   ) => {
-    // ⚠️ Кешируем только первую страницу (можно расширить)
     if (!lastDoc && communitiesCache.length > 0) {
       return { communities: communitiesCache, nextCursor: null };
     }
@@ -97,7 +97,6 @@ export const useCommunity = () => {
         ? snapshot.docs[snapshot.docs.length - 1]
         : null;
 
-    // Кешируем первую страницу
     if (!lastDoc) {
       setCommunitiesCache(communities);
     }
@@ -111,7 +110,6 @@ export const useCommunity = () => {
     return snap.exists() ? { id: snap.id, ...snap.data() } : null;
   };
 
-  // ✅ Вступить в сообщество
   const joinCommunity = async (communityId: string) => {
     ensureAuth();
 
@@ -127,13 +125,11 @@ export const useCommunity = () => {
       }),
     ]);
 
-    // 🆕 Обновляем userAtom
     setUser((prev) =>
       prev ? { ...prev, communities: [...prev.communities, communityId] } : prev
     );
   };
 
-  // ✅ Покинуть сообщество
   const leaveCommunity = async (communityId: string) => {
     ensureAuth();
 
@@ -177,7 +173,7 @@ export const useCommunity = () => {
       .filter((doc) => doc.exists())
       .map((doc) => ({
         id: doc.id,
-        ...(doc.data() as Omit<Community, "id">), // 🔧 здесь уточнение
+        ...(doc.data() as Omit<Community, "id">),
       }));
   };
 

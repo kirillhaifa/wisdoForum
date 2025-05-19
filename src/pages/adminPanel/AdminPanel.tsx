@@ -19,6 +19,7 @@ import {
   doc,
 } from "firebase/firestore";
 import { db } from "../../firebase/firbase";
+import { Roles } from "../../constants/roles";
 
 const AdminPanel = () => {
   const user = useRecoilValue(userAtom);
@@ -27,7 +28,7 @@ const AdminPanel = () => {
 
   useEffect(() => {
     const fetchUnapproved = async () => {
-      if (user?.role !== "admin") return;
+      if (user?.role !== Roles.ADMIN) return;
 
       const q = query(
         collection(db, "communities"),
@@ -55,7 +56,7 @@ const AdminPanel = () => {
     setCommunities((prev) => prev.filter((c) => c.id !== id));
   };
 
-  if (!user || user.role !== "admin") {
+  if (!user || user.role !== Roles.ADMIN) {
     return (
       <Typography sx={{ mt: 4, textAlign: "center" }}>No access</Typography>
     );

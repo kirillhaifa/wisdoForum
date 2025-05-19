@@ -1,11 +1,9 @@
-/* Установка глобального box-sizing */
 *,
 *::before,
 *::after {
   box-sizing: border-box;
 }
 
-/* Удаление стандартных отступов */
 body,
 h1,
 h2,

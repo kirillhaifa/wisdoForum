@@ -19,9 +19,9 @@ const CommunityCard: React.FC<Props> = ({ community }) => {
   const { leaveCommunity } = useCommunity();
 
   const handleLeave = async (e: React.MouseEvent) => {
-    e.preventDefault(); // чтобы не сработал переход по ссылке
+    e.preventDefault(); 
     await leaveCommunity(community.id);
-    window.location.reload(); // можно заменить на обновление Recoil или refetch
+    window.location.reload(); 
   };
 
   return (

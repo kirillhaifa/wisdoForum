@@ -16,8 +16,8 @@ import { usePost } from "../../hooks/usePost";
 import { Post } from "../../types/post";
 import PostCard from "../../components/postCard/postCard";
 import ApprovedCommunitiesWidget from "../../components/approvedCommunities/ApprovedCommunities";
-import CommunityHeader from "../../components/сommunityHeader/CommunityHeader";
 import SignInPrompt from "../../components/signInPrompt/SignInPrompt";
+import CommunityHeader from "../../components/сommunityHeader/CommunityHeader";
 
 const CommunityPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -45,7 +45,7 @@ const CommunityPage = () => {
       const data = await getCommunityById(id);
       setCommunity(data);
     } catch (err) {
-      console.error("❌ Failed to load community:", err);
+      console.error("Failed to load community:", err);
     }
     setLoading(false);
   };
@@ -61,7 +61,7 @@ const CommunityPage = () => {
       await joinCommunity(id);
       await fetch();
     } catch (err) {
-      console.error("❌ Join failed:", err);
+      console.error(" Join failed:", err);
     }
     setActionLoading(false);
   };
@@ -73,7 +73,7 @@ const CommunityPage = () => {
       await leaveCommunity(id);
       await fetch();
     } catch (err) {
-      console.error("❌ Leave failed:", err);
+      console.error("Leave failed:", err);
     }
     setActionLoading(false);
   };
@@ -89,7 +89,7 @@ const CommunityPage = () => {
       setPosts((prev) => [...prev, ...newPosts]);
       setPostCursor(nextCursor);
     } catch (err) {
-      console.error("❌ Failed to load posts:", err);
+      console.error("Failed to load posts:", err);
     }
     setPostLoading(false);
   };
@@ -99,11 +99,11 @@ const CommunityPage = () => {
 
     const unsubscribe = subscribeToPostsByCommunityId(id, (newPosts) => {
       setPosts(newPosts);
-      setPostCursor(null); // реалтайм-подписка не поддерживает пагинацию
+      setPostCursor(null);
       setPostLoading(false);
     });
 
-    return () => unsubscribe(); // очистка подписки
+    return () => unsubscribe();
   }, [id, user]);
 
   if (loading || actionLoading) {
@@ -131,14 +131,11 @@ const CommunityPage = () => {
         gap: 7,
       }}
     >
-      {/* Левая колонка — виджет */}
       <Box sx={{ flexShrink: 0 }}>
         <ApprovedCommunitiesWidget />
       </Box>
 
-      {/* Правая колонка — посты и форма */}
       <Box sx={{ width: "100%" }}>
-        {" "}
         <Box sx={{ flex: 1, minWidth: 0 }}>
           <CommunityHeader
             title={community.title}

@@ -37,17 +37,46 @@ const Header = () => {
   };
 
   return (
-    <AppBar position="fixed" color="default" elevation={1} sx={{backgroundColor: '#e9e8ff'}}>
+    <AppBar
+      position="fixed"
+      color="default"
+      elevation={1}
+      sx={{ backgroundColor: "#e9e8ff" }}
+    >
       <Toolbar sx={{ justifyContent: "space-between" }}>
-        {/* Левая часть */}
-        <Stack direction="row" spacing={1} alignItems="center">
-          <Logo width={32} height={32} />
-          <Typography variant="h6" sx={{ fontWeight: 700 }}>
-            Wisdo.Forum
+        <Stack
+          direction="row"
+          spacing={1}
+          alignItems="center"
+          sx={{ height: 30 }}
+        >
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              height: "100%",
+              paddingTop: '10px'
+            }}
+          >
+            <Logo width={32} height={32} />
+          </Box>
+          <Typography
+            variant="h5"
+            sx={{
+              fontWeight: 800,
+              letterSpacing: 1.5,
+              fontFamily: '"Segoe UI", Roboto, "Helvetica Neue", sans-serif',
+              textTransform: "uppercase",
+              color: "#7143FF",
+              userSelect: "none",
+              cursor: "pointer",
+              lineHeight: 1,
+            }}
+          >
+            Wisdo Forum
           </Typography>
         </Stack>
 
-        {/* Справа: логин/аватар или кнопка входа */}
         {user ? (
           <Stack direction="row" spacing={2} alignItems="center">
             <Avatar src={user.image} alt={user.name} />

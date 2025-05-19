@@ -12,11 +12,10 @@ import {
 import { useRecoilValue } from "recoil";
 import { userAtom } from "../../store/userAtom";
 import { useUserData } from "../../hooks/useUserData";
-
-const ROLES = ["user", "moderator", "admin"];
+import { Roles } from "../../constants/roles";
 
 const ProfilePage: React.FC = () => {
-  const { uid } = useRecoilValue(userAtom) ?? {}; // UID берётся из глобального состояния
+  const { uid } = useRecoilValue(userAtom) ?? {};
   const { userQuery, updateUser } = useUserData(uid ?? null);
 
   const [name, setName] = useState("");
@@ -79,7 +78,7 @@ const ProfilePage: React.FC = () => {
           value={role}
           onChange={(e) => setRole(e.target.value)}
         >
-          {ROLES.map((r) => (
+          {Object.values(Roles).map((r) => (
             <MenuItem key={r} value={r}>
               {r}
             </MenuItem>
