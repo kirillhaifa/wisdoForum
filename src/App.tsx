@@ -9,8 +9,12 @@ import Profile from "./pages/profile/profile";
 import AdminPanel from "./pages/adminPanel/AdminPanel";
 import CommunityPage from "./pages/community/CommunityPage";
 import NotFoundPage from "./pages/notFound/NotFound";
+import useIframeEvents from "./hooks/useIframeEvents";
 
 const App = () => {
+  // Инициализируем обработку iframe событий
+  useIframeEvents();
+
   return (
     <>
       <Header />

@@ -26,7 +26,7 @@ dd {
 body {
   min-height: 100vh;
   line-height: 1.5;
-  font-family: sans-serif;
+  font-family: 'Inter', 'Roboto', sans-serif; /* Используем внешние шрифты от Google */
   -webkit-font-smoothing: antialiased;
   background-color: #fafafa;
   overflow-x: hidden; /* Предотвращаем горизонтальную прокрутку */

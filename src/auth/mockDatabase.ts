@@ -24,14 +24,14 @@ let mockCommunities: MockCommunity[] = [
   {
     id: 'community1',
     title: 'Technology',
-    image: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="200" viewBox="0 0 300 200"><rect width="300" height="200" fill="%23ddd"/><text x="50%" y="50%" text-anchor="middle" dy=".3em" fill="%23999">300x200</text></svg>',
+    image: 'https://belretail.by/files/article/6078/2c9de42603339d6fcfeb8c68f33b2f23.jpg',
     membersCount: 15,
     approved: true,
   },
   {
     id: 'community2',
     title: 'Science',
-    image: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="200" viewBox="0 0 300 200"><rect width="300" height="200" fill="%23ddd"/><text x="50%" y="50%" text-anchor="middle" dy=".3em" fill="%23999">300x200</text></svg>',
+    image: 'https://www.hse.ru/data/2020/04/30/1544673822/3iStock-970562458.jpg',
     membersCount: 8,
     approved: true,
   },
