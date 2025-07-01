@@ -13,23 +13,34 @@ const Home = () => {
       display="flex"
       justifyContent="space-between"
       alignItems="flex-start"
-      gap={4}
-      px={4}
+      gap={{ xs: 2, md: 4 }}
+      px={{ xs: 1, sm: 2, md: 4 }}
       py={2}
-      flexWrap="wrap" 
+      flexWrap="wrap"
+      sx={{
+        flexDirection: { xs: "column", md: "row" },
+        maxWidth: "100vw",
+        overflowX: "hidden"
+      }}
     >
       <Box
         flexShrink={0}
         width={{ xs: "100%", sm: "30%", md: 400 }}
         maxWidth={500}
+        sx={{ display: { xs: "none", md: "block" } }}
       >
         <ApprovedCommunitiesWidget />
       </Box>
 
       <Box
         flex={1}
-        minWidth={300}
-        sx={{ border: "1px solid #ddd", borderRadius: 2 }}
+        minWidth={{ xs: "100%", md: 300 }}
+        sx={{ 
+          border: "1px solid #ddd", 
+          borderRadius: 2,
+          width: { xs: "100%", md: "auto" },
+          maxWidth: "100%"
+        }}
       >
 
         <HomeIntroSection />

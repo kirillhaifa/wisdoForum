@@ -48,6 +48,10 @@ const ApprovedCommunitiesWidget = () => {
         border: "1px solid #ddd",
         borderRadius: 2,
         bgcolor: "#fff",
+        display: { xs: "none", md: "block" },
+        "@media (max-width: 900px)": {
+          display: "none !important"
+        }
       }}
     >
       <Typography variant="h6" gutterBottom>

@@ -16,7 +16,7 @@ const App = () => {
       <Header />
       <Toolbar />
       <Navbar />
-      <Box sx={{ px: 2 }}>
+      <Box sx={{ px: { xs: 0, sm: 1, md: 2 }, maxWidth: "100vw", overflowX: "hidden" }}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/profile" element={<Profile />} />

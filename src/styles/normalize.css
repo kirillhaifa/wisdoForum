@@ -29,6 +29,7 @@ body {
   font-family: sans-serif;
   -webkit-font-smoothing: antialiased;
   background-color: #fafafa;
+  overflow-x: hidden; /* Предотвращаем горизонтальную прокрутку */
 }
 
 ul,
@@ -52,4 +53,29 @@ img,
 picture {
   max-width: 100%;
   display: block;
+}
+
+/* Мобильная адаптивность */
+@media (max-width: 600px) {
+  body {
+    font-size: 14px;
+  }
+  
+  /* Header адаптивность */
+  .MuiToolbar-root {
+    min-height: 56px !important;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+  
+  .MuiAppBar-root {
+    height: 56px !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .navbar-mobile {
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
 }

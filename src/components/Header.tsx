@@ -40,48 +40,106 @@ const Header = () => {
       elevation={1}
       sx={{ backgroundColor: "#e9e8ff" }}
     >
-      <Toolbar sx={{ justifyContent: "space-between" }}>
+      <Toolbar sx={{ 
+        justifyContent: "space-between",
+        px: { xs: 1, sm: 2, md: 3 },
+        minHeight: { xs: 56, sm: 64 }
+      }}>
         <Stack
           direction="row"
-          spacing={1}
+          spacing={{ xs: 0.5, sm: 1 }}
           alignItems="center"
-          sx={{ height: 30 }}
+          sx={{ height: { xs: 25, sm: 30 } }}
         >
           <Box
             sx={{
               display: "flex",
               alignItems: "center",
               height: "100%",
-              paddingTop: '10px'
+              paddingTop: { xs: '8px', sm: '10px' }
             }}
           >
             <Logo width={32} height={32} />
           </Box>
           <Typography
-            variant="h5"
+            variant="h6"
             sx={{
               fontWeight: 800,
-              letterSpacing: 1.5,
+              letterSpacing: { xs: 1, sm: 1.5 },
               fontFamily: '"Segoe UI", Roboto, "Helvetica Neue", sans-serif',
               textTransform: "uppercase",
               color: "#7143FF",
               userSelect: "none",
               cursor: "pointer",
               lineHeight: 1,
+              fontSize: { xs: "1rem", sm: "1.25rem", md: "1.5rem" },
             }}
           >
-            Wisdo Forum
+            {/* Сокращаем текст на очень маленьких экранах */}
+            <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>
+              Wisdo Forum
+            </Box>
+            <Box component="span" sx={{ display: { xs: "inline", sm: "none" } }}>
+              Wisdo
+            </Box>
           </Typography>
         </Stack>
 
         {user ? (
-          <Stack direction="row" spacing={2} alignItems="center">
-            <Avatar src={user.image} alt={user.name} />
-            <Typography>{user.name}</Typography>
-            <Button onClick={handleLogout}>Logout</Button>
+          <Stack direction="row" spacing={{ xs: 0.5, sm: 1, md: 2 }} alignItems="center">
+            <Avatar 
+              src={user.image} 
+              alt={user.name}
+              sx={{ 
+                width: { xs: 28, sm: 32, md: 40 }, 
+                height: { xs: 28, sm: 32, md: 40 } 
+              }}
+            />
+            {/* Скрываем имя пользователя на маленьких экранах */}
+            <Typography 
+              sx={{ 
+                display: { xs: "none", sm: "block" },
+                fontSize: { xs: "0.75rem", sm: "0.875rem", md: "1rem" }
+              }}
+            >
+              {user.name}
+            </Typography>
+            <Button 
+              onClick={handleLogout}
+              size="small"
+              sx={{ 
+                fontSize: { xs: "0.7rem", sm: "0.8rem", md: "0.875rem" },
+                px: { xs: 1, sm: 2 },
+                py: { xs: 0.5, sm: 1 }
+              }}
+            >
+              {/* Сокращаем текст кнопки на мобильных */}
+              <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>
+                Logout
+              </Box>
+              <Box component="span" sx={{ display: { xs: "inline", sm: "none" } }}>
+                Exit
+              </Box>
+            </Button>
           </Stack>
         ) : (
-          <Button onClick={handleLogin}>Sign In</Button>
+          <Button 
+            onClick={handleLogin}
+            size="small"
+            sx={{ 
+              fontSize: { xs: "0.7rem", sm: "0.8rem", md: "0.875rem" },
+              px: { xs: 1, sm: 2 },
+              py: { xs: 0.5, sm: 1 }
+            }}
+          >
+            {/* Сокращаем текст кнопки на мобильных */}
+            <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>
+              Sign In
+            </Box>
+            <Box component="span" sx={{ display: { xs: "inline", sm: "none" } }}>
+              Login
+            </Box>
+          </Button>
         )}
       </Toolbar>
       
