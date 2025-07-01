@@ -26,10 +26,10 @@ dd {
 body {
   min-height: 100vh;
   line-height: 1.5;
-  font-family: 'Inter', 'Roboto', sans-serif; /* Используем внешние шрифты от Google */
+  font-family: 'Inter', 'Roboto', sans-serif; /* Using external fonts from Google */
   -webkit-font-smoothing: antialiased;
   background-color: #fafafa;
-  overflow-x: hidden; /* Предотвращаем горизонтальную прокрутку */
+  overflow-x: hidden; /* Prevent horizontal scrolling */
 }
 
 ul,
@@ -55,13 +55,13 @@ picture {
   display: block;
 }
 
-/* Мобильная адаптивность */
+/* Mobile responsiveness */
 @media (max-width: 600px) {
   body {
     font-size: 14px;
   }
   
-  /* Header адаптивность */
+  /* Header responsiveness */
   .MuiToolbar-root {
     min-height: 56px !important;
     padding-left: 8px !important;

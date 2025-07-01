@@ -75,7 +75,7 @@ const Header = () => {
               fontSize: { xs: "1rem", sm: "1.25rem", md: "1.5rem" },
             }}
           >
-            {/* Сокращаем текст на очень маленьких экранах */}
+            {/* Shorten text on very small screens */}
             <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>
               Wisdo Forum
             </Box>
@@ -95,7 +95,7 @@ const Header = () => {
                 height: { xs: 28, sm: 32, md: 40 } 
               }}
             />
-            {/* Скрываем имя пользователя на маленьких экранах */}
+            {/* Hide username on small screens */}
             <Typography 
               sx={{ 
                 display: { xs: "none", sm: "block" },
@@ -113,7 +113,7 @@ const Header = () => {
                 py: { xs: 0.5, sm: 1 }
               }}
             >
-              {/* Сокращаем текст кнопки на мобильных */}
+              {/* Shorten button text on mobile */}
               <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>
                 Logout
               </Box>
@@ -132,7 +132,7 @@ const Header = () => {
               py: { xs: 0.5, sm: 1 }
             }}
           >
-            {/* Сокращаем текст кнопки на мобильных */}
+            {/* Shorten button text on mobile */}
             <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>
               Sign In
             </Box>

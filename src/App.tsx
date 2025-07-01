@@ -12,7 +12,7 @@ import NotFoundPage from "./pages/notFound/NotFound";
 import useIframeEvents from "./hooks/useIframeEvents";
 
 const App = () => {
-  // Инициализируем обработку iframe событий
+  // Initialize iframe event handling
   useIframeEvents();
 
   return (

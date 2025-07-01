@@ -1,7 +1,7 @@
 import React from "react";
 import { Box, IconButton, Tooltip } from "@mui/material";
 
-// Компонент для демонстрации использования внешних ресурсов
+// Component for demonstrating usage of external resources
 const ExternalIconsDemo: React.FC = () => {
   return (
     <Box 
@@ -12,7 +12,7 @@ const ExternalIconsDemo: React.FC = () => {
         py: 1
       }}
     >
-      {/* Material Icons - загружается с fonts.googleapis.com */}
+      {/* Material Icons - loaded from fonts.googleapis.com */}
       <Tooltip title="Home (Material Icons)">
         <IconButton>
           <span className="material-icons">home</span>
@@ -31,7 +31,7 @@ const ExternalIconsDemo: React.FC = () => {
         </IconButton>
       </Tooltip>
 
-      {/* Font Awesome Icons - загружается с cdnjs.cloudflare.com */}
+      {/* Font Awesome Icons - loaded from cdnjs.cloudflare.com */}
       <Tooltip title="Heart (Font Awesome)">
         <IconButton>
           <i className="fas fa-heart" style={{ color: "#e91e63" }}></i>
