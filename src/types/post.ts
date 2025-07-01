@@ -1,4 +1,12 @@
-import { Timestamp } from "firebase/firestore";
+// Mock Timestamp interface to replace Firebase Timestamp
+export interface MockTimestamp {
+  seconds: number;
+  nanoseconds: number;
+  toDate: () => Date;
+  toMillis: () => number;
+  isEqual: (other: MockTimestamp) => boolean;
+  toJSON: () => string;
+}
 
 export interface Post {
   id: string;
@@ -9,5 +17,5 @@ export interface Post {
   communityId: string;
   likes: number;
   approved: boolean;
-  createdAt: Timestamp;
+  createdAt: MockTimestamp;
 }

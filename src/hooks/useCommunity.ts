@@ -1,28 +1,12 @@
-import { db } from "../firebase/firbase";
-import {
-  addDoc,
-  arrayUnion,
-  arrayRemove,
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  query,
-  updateDoc,
-  where,
-  startAfter,
-  orderBy,
-  limit,
-  QueryDocumentSnapshot,
-  DocumentData,
-  increment,
-} from "firebase/firestore";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { userAtom } from "../store/userAtom";
 import { useNavigate } from "react-router-dom";
 import { communitiesAtom } from "../store/communitiesAtom";
 import { Community } from "../store/approvedCommunitiesAtom";
 import { Roles } from "../constants/roles";
+import { mockDatabase } from "../auth/mockDatabase";
+import { mockAuth } from "../auth/mockAuth";
+import { useCallback } from "react";
 
 const PAGE_SIZE = 10;
 
@@ -34,28 +18,29 @@ export const useCommunity = () => {
 
   const navigate = useNavigate();
 
-  const ensureAuth = () => {
+  const ensureAuth = (): boolean => {
     if (!user) {
       navigate("/login");
-      throw new Error("Redirected to login");
+      return false;
     }
+    return true;
   };
 
   const createCommunity = async (title: string, image: string) => {
-    ensureAuth();
+    if (!ensureAuth()) return;
 
-    const ref = await addDoc(collection(db, "communities"), {
+    const communityId = await mockDatabase.createCommunity({
       title,
       image,
-      membersCount: 1,
-      approved: false,
+      userId: user!.uid
     });
 
-    await updateDoc(doc(db, "users", user!.uid), {
-      communities: arrayUnion(ref.id),
+    // Update user's communities
+    await mockAuth.updateUser(user!.uid, {
+      communities: [...user!.communities, communityId]
     });
 
-    return ref.id;
+    return communityId;
   };
 
   const approveCommunity = async (communityId: string) => {
@@ -63,66 +48,42 @@ export const useCommunity = () => {
       throw new Error("Only admins can approve communities");
     }
 
-    await updateDoc(doc(db, "communities", communityId), {
-      approved: true,
-    });
+    await mockDatabase.approveCommunity(communityId);
   };
 
-  const getApprovedCommunities = async (
-    lastDoc: QueryDocumentSnapshot<DocumentData> | null = null
+  const getApprovedCommunities = useCallback(async (
+    lastDoc: any = null
   ) => {
     if (!lastDoc && communitiesCache.length > 0) {
       return { communities: communitiesCache, nextCursor: null };
     }
 
-    let q = query(
-      collection(db, "communities"),
-      where("approved", "==", true),
-      orderBy("title"),
-      limit(PAGE_SIZE)
-    );
+    const offset = lastDoc ? lastDoc.offset : 0;
+    const communities = await mockDatabase.getApprovedCommunities(offset, PAGE_SIZE);
 
-    if (lastDoc) {
-      q = query(q, startAfter(lastDoc));
-    }
-
-    const snapshot = await getDocs(q);
-    const communities = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-
-    const nextCursor =
-      snapshot.docs.length === PAGE_SIZE
-        ? snapshot.docs[snapshot.docs.length - 1]
-        : null;
+    const nextCursor = communities.length === PAGE_SIZE 
+      ? { offset: offset + PAGE_SIZE }
+      : null;
 
     if (!lastDoc) {
       setCommunitiesCache(communities);
     }
 
     return { communities, nextCursor };
-  };
+  }, [communitiesCache, setCommunitiesCache]);
 
   const getCommunityById = async (id: string) => {
-    const ref = doc(db, "communities", id);
-    const snap = await getDoc(ref);
-    return snap.exists() ? { id: snap.id, ...snap.data() } : null;
+    return await mockDatabase.getCommunityById(id);
   };
 
   const joinCommunity = async (communityId: string) => {
-    ensureAuth();
-
-    const userRef = doc(db, "users", user!.uid);
-    const communityRef = doc(db, "communities", communityId);
+    if (!ensureAuth()) return;
 
     await Promise.all([
-      updateDoc(userRef, {
-        communities: arrayUnion(communityId),
+      mockAuth.updateUser(user!.uid, {
+        communities: [...user!.communities, communityId]
       }),
-      updateDoc(communityRef, {
-        membersCount: increment(1),
-      }),
+      mockDatabase.joinCommunity(communityId)
     ]);
 
     setUser((prev) =>
@@ -131,18 +92,13 @@ export const useCommunity = () => {
   };
 
   const leaveCommunity = async (communityId: string) => {
-    ensureAuth();
-
-    const userRef = doc(db, "users", user!.uid);
-    const communityRef = doc(db, "communities", communityId);
+    if (!ensureAuth()) return;
 
     await Promise.all([
-      updateDoc(userRef, {
-        communities: arrayRemove(communityId),
+      mockAuth.updateUser(user!.uid, {
+        communities: user!.communities.filter(id => id !== communityId)
       }),
-      updateDoc(communityRef, {
-        membersCount: increment(-1),
-      }),
+      mockDatabase.leaveCommunity(communityId)
     ]);
 
     setUser((prev) =>
@@ -155,27 +111,20 @@ export const useCommunity = () => {
     );
   };
 
-  const getUserCommunities = async (): Promise<Community[]> => {
-    ensureAuth();
+  const getUserCommunities = useCallback(async (): Promise<Community[]> => {
+    if (!user) {
+      return [];
+    }
 
-    const userRef = doc(db, "users", user!.uid);
-    const userSnap = await getDoc(userRef);
-    if (!userSnap.exists()) return [];
-
-    const userData = userSnap.data();
-    const communityIds: string[] = userData.communities || [];
-
-    const communityDocs = await Promise.all(
-      communityIds.map((id) => getDoc(doc(db, "communities", id)))
+    const communityIds = user.communities || [];
+    const communities = await Promise.all(
+      communityIds.map(id => mockDatabase.getCommunityById(id))
     );
 
-    return communityDocs
-      .filter((doc) => doc.exists())
-      .map((doc) => ({
-        id: doc.id,
-        ...(doc.data() as Omit<Community, "id">),
-      }));
-  };
+    return communities
+      .filter(community => community !== null)
+      .map(community => community!);
+  }, [user]);
 
   return {
     createCommunity,

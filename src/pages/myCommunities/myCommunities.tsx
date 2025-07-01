@@ -3,9 +3,12 @@ import { Box, CircularProgress, Typography, Grid, Container } from "@mui/materia
 import { useCommunity } from "../../hooks/useCommunity";
 import { Community } from "../../store/approvedCommunitiesAtom";
 import CommunityCard from "../../components/communityCard/CommunityCard";
+import { useRecoilValue } from "recoil";
+import { userAtom } from "../../store/userAtom";
 
 
 const MyCommunitiesPage: React.FC = () => {
+  const user = useRecoilValue(userAtom);
   const { getUserCommunities } = useCommunity();
   const [communities, setCommunities] = useState<Community[]>([]);
   const [loading, setLoading] = useState(true);
@@ -13,15 +16,32 @@ const MyCommunitiesPage: React.FC = () => {
   useEffect(() => {
     const loadCommunities = async () => {
       try {
-        const data = await getUserCommunities();
-        setCommunities(data);
+        // Only try to load communities if user is authenticated
+        if (user) {
+          const data = await getUserCommunities();
+          setCommunities(data);
+        }
+      } catch (error) {
+        console.error('Error loading communities:', error);
       } finally {
         setLoading(false);
       }
     };
 
     loadCommunities();
-  }, [getUserCommunities]);
+  }, [getUserCommunities, user]);
+
+  // Show loading while checking authentication
+  if (!user) {
+    return (
+      <Container sx={{ py: 4 }}>
+        <Typography variant="h4" gutterBottom>
+          My Communities
+        </Typography>
+        <Typography>Please log in to view your communities.</Typography>
+      </Container>
+    );
+  }
 
   return (
     <Container sx={{ py: 4 }}>

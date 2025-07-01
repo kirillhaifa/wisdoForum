@@ -11,8 +11,8 @@ import { Post } from "../../types/post";
 import { format } from "date-fns";
 import { useRecoilValue } from "recoil";
 import { userAtom } from "../../store/userAtom";
-import { doc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
-import { db } from "../../firebase/firbase";
+import { mockAuth } from "../../auth/mockAuth";
+import { mockDatabase } from "../../auth/mockDatabase";
 import { Roles } from "../../constants/roles";
 
 type PostCardProps = {
@@ -39,25 +39,29 @@ const PostCard: React.FC<PostCardProps> = ({
 
   useEffect(() => {
     const fetchAuthorName = async () => {
-      const ref = doc(db, "users", post.authorId);
-      const snap = await getDoc(ref);
-      if (snap.exists()) {
-        const data = snap.data();
-        setResolvedAuthorName(data.name ?? post.authorId);
+      if (!authorName) {
+        const author = await mockAuth.getUserByUid(post.authorId);
+        if (author) {
+          setResolvedAuthorName(author.name);
+        } else {
+          setResolvedAuthorName(post.authorId);
+        }
       }
     };
 
     fetchAuthorName();
-  }, [post.authorId, resolvedAuthorName]);
+  }, [post.authorId, authorName]);
 
   const handleApprove = async () => {
-    const ref = doc(db, "posts", post.id);
-    await updateDoc(ref, { approved: true });
+    await mockDatabase.approvePost(post.id);
+    // In a real app, you'd want to refresh the component or use a state management solution
+    window.location.reload();
   };
 
   const handleDelete = async () => {
-    const ref = doc(db, "posts", post.id);
-    await deleteDoc(ref);
+    await mockDatabase.deletePost(post.id);
+    // In a real app, you'd want to refresh the component or use a state management solution
+    window.location.reload();
   };
 
   return (

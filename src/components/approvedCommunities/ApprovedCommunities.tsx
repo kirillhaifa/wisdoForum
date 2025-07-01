@@ -12,14 +12,12 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { useCommunity } from "../../hooks/useCommunity";
-import { QueryDocumentSnapshot, DocumentData } from "firebase/firestore";
 import { Link } from "react-router-dom";
 
 const ApprovedCommunitiesWidget = () => {
   const { getApprovedCommunities } = useCommunity();
   const [communities, setCommunities] = useState<any[]>([]);
-  const [lastDoc, setLastDoc] =
-    useState<QueryDocumentSnapshot<DocumentData> | null>(null);
+  const [lastDoc, setLastDoc] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [isEnd, setIsEnd] = useState(false);
 

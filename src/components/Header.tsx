@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   AppBar,
   Toolbar,
@@ -9,27 +9,24 @@ import {
   Box,
 } from "@mui/material";
 import { useRecoilValue, useResetRecoilState } from "recoil";
-import { signOut, signInWithPopup } from "firebase/auth";
 import { userAtom } from "../store/userAtom";
-import { auth, provider } from "../firebase/firbase";
+import { mockAuth } from "../auth/mockAuth";
 import Logo from "./Logo";
 import Navbar from "./Navbar";
+import LoginModal from "./LoginModal/LoginModal";
 
 const Header = () => {
   const user = useRecoilValue(userAtom);
   const resetUser = useResetRecoilState(userAtom);
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
 
-  const handleLogin = async () => {
-    try {
-      await signInWithPopup(auth, provider);
-    } catch (err) {
-      console.error("Login error:", err);
-    }
+  const handleLogin = () => {
+    setLoginModalOpen(true);
   };
 
   const handleLogout = async () => {
     try {
-      await signOut(auth);
+      await mockAuth.signOut();
       resetUser();
     } catch (err) {
       console.error("Logout error:", err);
@@ -84,9 +81,14 @@ const Header = () => {
             <Button onClick={handleLogout}>Logout</Button>
           </Stack>
         ) : (
-          <Button onClick={handleLogin}>Sign in with Google</Button>
+          <Button onClick={handleLogin}>Sign In</Button>
         )}
       </Toolbar>
+      
+      <LoginModal 
+        open={loginModalOpen} 
+        onClose={() => setLoginModalOpen(false)} 
+      />
     </AppBar>
   );
 };

@@ -1,28 +1,19 @@
-import { db } from "../firebase/firbase";
-import {
-  addDoc,
-  deleteDoc,
-  doc,
-  getDoc,
-  updateDoc,
-  serverTimestamp,
-  collection,
-  query,
-  where,
-  orderBy,
-  limit,
-  getDocs,
-  startAfter,
-  QueryDocumentSnapshot,
-  DocumentData,
-  onSnapshot
-} from "firebase/firestore";
 import { useRecoilValue } from "recoil";
 import { userAtom } from "../store/userAtom";
-import { Post } from "../types/post";
+import { Post, MockTimestamp } from "../types/post";
 import { Roles } from "../constants/roles";
+import { mockDatabase } from "../auth/mockDatabase";
 
 const PAGE_SIZE = 5;
+
+const createMockTimestamp = (date: Date): MockTimestamp => ({
+  seconds: Math.floor(date.getTime() / 1000),
+  nanoseconds: 0,
+  toDate: () => date,
+  toMillis: () => date.getTime(),
+  isEqual: (other: MockTimestamp) => date.getTime() === other.toMillis(),
+  toJSON: () => date.toISOString()
+});
 
 export const usePost = () => {
   const user = useRecoilValue(userAtom);
@@ -39,129 +30,155 @@ export const usePost = () => {
   }) => {
     ensureAuth();
 
-    await addDoc(collection(db, "posts"), {
+    const postId = await mockDatabase.createPost({
       title: data.title,
       summary: data.summary,
       body: data.body,
       communityId: data.communityId,
       authorId: user!.uid,
-      likes: 0,
-      approved: false,
-      createdAt: serverTimestamp(),
     });
+
+    return postId;
   };
 
   const approvePost = async (postId: string) => {
-    ensureAuth();
-    if (user!.role !== Roles.ADMIN && user!.role !== Roles.MODERATOR) {
-      throw new Error("Only admins or moderators can approve posts");
+    if (!user || (user.role !== Roles.ADMIN && user.role !== Roles.MODERATOR)) {
+      throw new Error("Only admins and moderators can approve posts");
     }
 
-    await updateDoc(doc(db, "posts", postId), {
-      approved: true,
-    });
-  };
-
-  const rejectPost = async (postId: string) => {
-    ensureAuth();
-    if (user!.role !== Roles.ADMIN && user!.role !== Roles.MODERATOR) {
-      throw new Error("Only admins or moderators can reject posts");
-    }
-
-    await deleteDoc(doc(db, "posts", postId));
+    await mockDatabase.approvePost(postId);
   };
 
   const deletePost = async (postId: string) => {
     ensureAuth();
 
-    const postRef = doc(db, "posts", postId);
-    const postSnap = await getDoc(postRef);
+    const post = await mockDatabase.getPostById(postId);
+    if (!post) throw new Error("Post not found");
 
-    if (!postSnap.exists()) {
-      throw new Error("Post not found");
+    const canDelete = 
+      post.authorId === user!.uid || 
+      user!.role === Roles.ADMIN || 
+      user!.role === Roles.MODERATOR;
+
+    if (!canDelete) {
+      throw new Error("You don't have permission to delete this post");
     }
 
-    const postData = postSnap.data();
-    const isOwner = postData.authorId === user!.uid;
-    const isAdminOrMod = user!.role === Roles.ADMIN || user!.role === Roles.MODERATOR;
-
-    if (!isOwner && !isAdminOrMod) {
-      throw new Error("You are not allowed to delete this post");
-    }
-
-    await deleteDoc(postRef);
+    await mockDatabase.deletePost(postId);
   };
 
-  const subscribeToPostsByCommunityId = (
-    communityId: string,
-    onUpdate: (posts: Post[]) => void
-  ) => {
-    const isAdminOrMod = user?.role === Roles.ADMIN || user?.role === Roles.MODERATOR;
+  const updatePost = async (postId: string, updates: { title?: string; summary?: string; body?: string }) => {
+    ensureAuth();
 
-    const constraints: any[] = [
-      where("communityId", "==", communityId),
-      orderBy("createdAt", "desc"),
-    ];
+    const post = await mockDatabase.getPostById(postId);
+    if (!post) throw new Error("Post not found");
 
-    if (!isAdminOrMod) {
-      constraints.unshift(where("approved", "==", true));
+    if (post.authorId !== user!.uid) {
+      throw new Error("You can only edit your own posts");
     }
 
-    const q = query(collection(db, "posts"), ...constraints);
-
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const posts: Post[] = snapshot.docs.map(
-        (doc) => ({ id: doc.id, ...doc.data() } as Post)
-      );
-      onUpdate(posts);
-    });
-
-    return unsubscribe; 
+    await mockDatabase.updatePost(postId, updates);
   };
 
-  const getPostsByCommunityId = async (
+  const getPostById = async (id: string): Promise<Post | null> => {
+    const post = await mockDatabase.getPostById(id);
+    if (!post) return null;
+
+    return {
+      id: post.id,
+      title: post.title,
+      summary: post.summary,
+      body: post.body,
+      communityId: post.communityId,
+      authorId: post.authorId,
+      likes: post.likes,
+      approved: post.approved,
+      createdAt: createMockTimestamp(post.createdAt),
+    };
+  };
+
+  const getPostsByCommunity = async (
     communityId: string,
-    lastDoc: QueryDocumentSnapshot<DocumentData> | null = null
-  ) => {
-    const isAdminOrMod = user?.role === Roles.ADMIN || user?.role === Roles.MODERATOR;
+    lastDoc: any = null
+  ): Promise<{ posts: Post[]; nextCursor: any }> => {
+    const offset = lastDoc ? lastDoc.offset : 0;
+    const mockPosts = await mockDatabase.getPostsByCommunity(communityId, offset, PAGE_SIZE);
+    
+    const posts: Post[] = mockPosts.map(post => ({
+      id: post.id,
+      title: post.title,
+      summary: post.summary,
+      body: post.body,
+      communityId: post.communityId,
+      authorId: post.authorId,
+      likes: post.likes,
+      approved: post.approved,
+      createdAt: createMockTimestamp(post.createdAt),
+    }));
 
-    const constraints: any[] = [
-      where("communityId", "==", communityId),
-      orderBy("createdAt", "desc"),
-    ];
-
-    if (!isAdminOrMod) {
-      constraints.unshift(where("approved", "==", true));
-    }
-
-    if (lastDoc) {
-      constraints.push(startAfter(lastDoc));
-    }
-
-    constraints.push(limit(PAGE_SIZE));
-
-    const q = query(collection(db, "posts"), ...constraints);
-
-    const snapshot = await getDocs(q);
-
-    const posts: Post[] = snapshot.docs.map(
-      (doc) => ({ id: doc.id, ...doc.data() } as Post)
-    );
-
-    const nextCursor =
-      snapshot.docs.length === PAGE_SIZE
-        ? snapshot.docs[snapshot.docs.length - 1]
-        : null;
+    const nextCursor = posts.length === PAGE_SIZE 
+      ? { offset: offset + PAGE_SIZE }
+      : null;
 
     return { posts, nextCursor };
+  };
+
+  const getAllPosts = async (
+    lastDoc: any = null
+  ): Promise<{ posts: Post[]; nextCursor: any }> => {
+    const offset = lastDoc ? lastDoc.offset : 0;
+    const mockPosts = await mockDatabase.getAllApprovedPosts(offset, PAGE_SIZE);
+    
+    const posts: Post[] = mockPosts.map(post => ({
+      id: post.id,
+      title: post.title,
+      summary: post.summary,
+      body: post.body,
+      communityId: post.communityId,
+      authorId: post.authorId,
+      likes: post.likes,
+      approved: post.approved,
+      createdAt: createMockTimestamp(post.createdAt),
+    }));
+
+    const nextCursor = posts.length === PAGE_SIZE 
+      ? { offset: offset + PAGE_SIZE }
+      : null;
+
+    return { posts, nextCursor };
+  };
+
+  const likePost = async (postId: string) => {
+    ensureAuth();
+    await mockDatabase.likePost(postId);
+  };
+
+  const unlikePost = async (postId: string) => {
+    ensureAuth();
+    await mockDatabase.unlikePost(postId);
+  };
+
+  const subscribeToPostsByCommunity = (
+    communityId: string,
+    callback: (posts: Post[]) => void
+  ): (() => void) => {
+    getPostsByCommunity(communityId).then(({ posts }) => {
+      callback(posts);
+    });
+
+    return () => {};
   };
 
   return {
     createPost,
     approvePost,
-    rejectPost,
     deletePost,
-    getPostsByCommunityId,
-    subscribeToPostsByCommunityId
+    updatePost,
+    getPostById,
+    getPostsByCommunity,
+    getAllPosts,
+    likePost,
+    unlikePost,
+    subscribeToPostsByCommunity,
   };
 };

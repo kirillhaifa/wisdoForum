@@ -9,16 +9,7 @@ import {
 } from "@mui/material";
 import { useRecoilValue } from "recoil";
 import { userAtom } from "../../store/userAtom";
-import {
-  collection,
-  getDocs,
-  query,
-  where,
-  updateDoc,
-  deleteDoc,
-  doc,
-} from "firebase/firestore";
-import { db } from "../../firebase/firbase";
+import { mockDatabase } from "../../auth/mockDatabase";
 import { Roles } from "../../constants/roles";
 
 const AdminPanel = () => {
@@ -30,14 +21,8 @@ const AdminPanel = () => {
     const fetchUnapproved = async () => {
       if (user?.role !== Roles.ADMIN) return;
 
-      const q = query(
-        collection(db, "communities"),
-        where("approved", "==", false)
-      );
-      const snapshot = await getDocs(q);
-      setCommunities(
-        snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
-      );
+      const pendingCommunities = await mockDatabase.getPendingCommunities();
+      setCommunities(pendingCommunities);
       setLoading(false);
     };
 
@@ -45,14 +30,13 @@ const AdminPanel = () => {
   }, [user]);
 
   const approve = async (id: string) => {
-    await updateDoc(doc(db, "communities", id), {
-      approved: true,
-    });
+    await mockDatabase.approveCommunity(id);
     setCommunities((prev) => prev.filter((c) => c.id !== id));
   };
 
   const reject = async (id: string) => {
-    await deleteDoc(doc(db, "communities", id));
+    // In this mock implementation, we'll just remove it from pending
+    // In real implementation, you might want to keep a record
     setCommunities((prev) => prev.filter((c) => c.id !== id));
   };
 

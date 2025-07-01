@@ -1,9 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { db } from "../firebase/firbase";
 import { useSetRecoilState } from "recoil";
 import { userAtom, UserData } from "../store/userAtom";
 import { useEffect } from "react";
+import { mockAuth } from "../auth/mockAuth";
 
 export const useUserData = (uid: string | null) => {
   const setUser = useSetRecoilState(userAtom);
@@ -14,14 +13,17 @@ export const useUserData = (uid: string | null) => {
     queryFn: async (): Promise<UserData> => {
       if (!uid) throw new Error("No UID provided");
 
-      const ref = doc(db, "users", uid);
-      const snap = await getDoc(ref);
-      if (!snap.exists()) throw new Error("User not found");
+      const user = await mockAuth.getUserByUid(uid);
+      if (!user) throw new Error("User not found");
 
-      const userData = snap.data();
       return {
-        ...(userData as Omit<UserData, "uid">),
-        uid,
+        uid: user.uid,
+        name: user.name,
+        email: user.email,
+        image: user.image || "",
+        role: user.role || "",
+        country: user.country,
+        communities: user.communities
       };
     },
     enabled: !!uid,
@@ -36,8 +38,7 @@ export const useUserData = (uid: string | null) => {
   const updateUser = useMutation({
     mutationFn: async (updates: Partial<Omit<UserData, "uid">>) => {
       if (!uid) throw new Error("No UID provided");
-      const ref = doc(db, "users", uid);
-      await updateDoc(ref, updates);
+      await mockAuth.updateUser(uid, updates);
       return updates;
     },
     onSuccess: async () => {

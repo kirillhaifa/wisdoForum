@@ -24,7 +24,7 @@ const CommunityPage = () => {
   const { getCommunityById, joinCommunity, leaveCommunity } = useCommunity();
   const user = useRecoilValue(userAtom);
 
-  const { getPostsByCommunityId, subscribeToPostsByCommunityId } = usePost();
+  const { getPostsByCommunity, subscribeToPostsByCommunity } = usePost();
 
   const [posts, setPosts] = useState<Post[]>([]);
   const [postCursor, setPostCursor] = useState<any>(null);
@@ -82,7 +82,7 @@ const CommunityPage = () => {
     if (!id) return;
     setPostLoading(true);
     try {
-      const { posts: newPosts, nextCursor } = await getPostsByCommunityId(
+      const { posts: newPosts, nextCursor } = await getPostsByCommunity(
         id,
         postCursor
       );
@@ -97,7 +97,7 @@ const CommunityPage = () => {
   useEffect(() => {
     if (!id) return;
 
-    const unsubscribe = subscribeToPostsByCommunityId(id, (newPosts) => {
+    const unsubscribe = subscribeToPostsByCommunity(id, (newPosts) => {
       setPosts(newPosts);
       setPostCursor(null);
       setPostLoading(false);
